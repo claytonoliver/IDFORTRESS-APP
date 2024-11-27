@@ -14,11 +14,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.idfortress.R
 import com.example.idfortress.ui.theme.IdFortressTheme
 
 @Composable
-fun Home() {
+fun Home(navController: NavController) {
     val context = LocalContext.current
     Column(
         modifier = Modifier
@@ -50,7 +52,7 @@ fun Home() {
             ) {
                 Button(
                     onClick = {
-
+                        navController.navigate("BiometriaFacial")
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.LightGray,
@@ -81,7 +83,7 @@ fun Home() {
                     )
                 }
                 Button(
-                    onClick = { /* Ação do Botão 1 */ },
+                    onClick = { navController.navigate("SimSwap") },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.LightGray,
                         contentColor = Color.Black
@@ -149,6 +151,7 @@ fun Home() {
 @Composable
 fun HomeScreenPreview() {
     IdFortressTheme {
-        Home()
+        val navController = rememberNavController()
+        Home(navController = navController)
     }
 }

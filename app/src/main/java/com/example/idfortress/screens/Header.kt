@@ -16,9 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun Header(text: String) {
+fun Header(text: String, navController: NavController) {
 
     Row (
         modifier = Modifier
@@ -29,7 +31,7 @@ fun Header(text: String) {
         horizontalArrangement = Arrangement.SpaceAround
     ) {
         Button(
-            onClick = {},
+            onClick = {navController.navigate("Home")},
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.White,
                 contentColor = Color.Black
@@ -51,5 +53,6 @@ fun Header(text: String) {
 @Preview(showBackground = true)
 @Composable
 private fun HeaderPreview() {
-    Header("")
+    val navController = rememberNavController()
+    Header("", navController = navController)
 }
