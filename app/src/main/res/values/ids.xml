@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="edtNome" type="id">Name</item>
+    <item name="edtCpf" type="id">CPF</item>
+    <item name="edtEndereco" type="id">Endereco</item>
+    <item name="edtTelefone" type="id">Telefone</item>
+    <item name="btnEnviar" type="id">Enviar</item>
+</resources>
