@@ -1,6 +1,12 @@
 package com.example.idfortress.screens
 
+
+import android.util.Log
+import androidx.annotation.OptIn
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ExperimentalGetImage
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -18,19 +24,40 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.idfortress.R
-
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.face.Face
+import com.google.mlkit.vision.face.FaceDetection
+import java.util.concurrent.Executors
 
 @Composable
 fun BiometriaFacial(navController: NavController) {
     var isCameraVisible by remember { mutableStateOf(false) }
+    var cameraSelector by remember { mutableStateOf(CameraSelector.DEFAULT_FRONT_CAMERA) }
+    var faceDetected by remember { mutableStateOf(false) }
+    var countdown by remember { mutableStateOf(10) }
+    var validationMessage by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+
+    LaunchedEffect(faceDetected) {
+        if (faceDetected) {
+            countdown = 10
+            for (i in 10 downTo 1) {
+                countdown = i
+                kotlinx.coroutines.delay(1000)
+            }
+            validationMessage = "Rosto Validado!"
+            faceDetected = false
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -69,16 +96,19 @@ fun BiometriaFacial(navController: NavController) {
                     contentAlignment = Alignment.Center
                 ) {
                     if (isCameraVisible) {
-                        CameraPreview(modifier = Modifier.matchParentSize())
+                        CameraPreview(
+                            cameraSelector = cameraSelector,
+                            onFaceDetected = { faceDetected = true },
+                            modifier = Modifier.matchParentSize()
+                        )
                     }
                 }
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(top = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Button(
                         onClick = { isCameraVisible = !isCameraVisible },
@@ -92,14 +122,55 @@ fun BiometriaFacial(navController: NavController) {
                             fontSize = 20.sp
                         )
                     }
+
+                    Button(
+                        onClick = {
+                            cameraSelector = if (cameraSelector == CameraSelector.DEFAULT_FRONT_CAMERA) {
+                                CameraSelector.DEFAULT_BACK_CAMERA
+                            } else {
+                                CameraSelector.DEFAULT_FRONT_CAMERA
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Gray,
+                            contentColor = Color.Black
+                        )
+                    ) {
+                        Text(
+                            text = "Trocar Câmera",
+                            fontSize = 16.sp
+                        )
+                    }
+                }
+                if (faceDetected) {
+                    Text(
+                        text = "Aguarde $countdown segundos...",
+                        color = Color.Green,
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+                }
+                if (validationMessage.isNotEmpty()) {
+                    Text(
+                        text = validationMessage,
+                        color = Color.Green,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalGetImage::class)
 @Composable
-fun CameraPreview(modifier: Modifier = Modifier) {
+fun CameraPreview(
+    cameraSelector: CameraSelector,
+    onFaceDetected: (Face) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
 
@@ -109,19 +180,23 @@ fun CameraPreview(modifier: Modifier = Modifier) {
                 val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
                 cameraProviderFuture.addListener({
                     val cameraProvider = cameraProviderFuture.get()
-
                     val preview = Preview.Builder().build().also {
                         it.setSurfaceProvider(surfaceProvider)
                     }
 
-                    val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+                    val faceAnalyzer = ImageAnalysis.Builder().build().apply {
+                        setAnalyzer(Executors.newSingleThreadExecutor()) { imageProxy ->
+                            processImageProxy(imageProxy, onFaceDetected)
+                        }
+                    }
 
                     try {
                         cameraProvider.unbindAll()
                         cameraProvider.bindToLifecycle(
                             lifecycleOwner,
                             cameraSelector,
-                            preview
+                            preview,
+                            faceAnalyzer
                         )
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -134,9 +209,40 @@ fun CameraPreview(modifier: Modifier = Modifier) {
 }
 
 
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true, showSystemUi = true)
-@Composable
-private fun BiometriaFacialPreview() {
-    val navController = rememberNavController()
-    BiometriaFacial(navController = navController)
+@ExperimentalGetImage
+private fun processImageProxy(
+    imageProxy: ImageProxy,
+    onFaceDetected: (Face) -> Unit
+) {
+    val mediaImage = imageProxy.image
+    if (mediaImage == null) {
+        Log.e("FaceDetection", "ImageProxy não possui imagem")
+        imageProxy.close()
+        return
+    }
+
+    val rotationDegrees = imageProxy.imageInfo.rotationDegrees
+    Log.d("FaceDetection", "Rotation degrees: $rotationDegrees")
+
+    val image = InputImage.fromMediaImage(mediaImage, rotationDegrees)
+    val detector = FaceDetection.getClient()
+
+    detector.process(image)
+        .addOnSuccessListener { faces ->
+            Log.d("FaceDetection", "Faces detectados: ${faces.size}")
+            if (faces.isNotEmpty()) {
+                Log.d("FaceDetection", "Face detectada: ${faces[0].boundingBox}")
+                onFaceDetected(faces[0])
+            } else {
+                Log.d("FaceDetection", "Nenhum rosto detectado.")
+            }
+        }
+        .addOnFailureListener { e ->
+            Log.e("FaceDetection", "Erro ao detectar rosto: ${e.message}")
+        }
+        .addOnCompleteListener {
+            Log.d("FaceDetection", "Processamento completo")
+            imageProxy.close() // Certifique-se de liberar o recurso
+        }
 }
+
