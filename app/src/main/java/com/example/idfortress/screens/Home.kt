@@ -115,7 +115,7 @@ fun Home(navController: NavController) {
                     )
                 }
                 Button(
-                    onClick = { /* Ação do Botão 1 */ },
+                    onClick = {navController.navigate("ConsultaScoreCpf")},
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.LightGray,
                         contentColor = Color.Black
@@ -130,7 +130,7 @@ fun Home(navController: NavController) {
                     )
                 }
                 Button(
-                    onClick = { /* Ação do Botão 1 */ },
+                    onClick = {navController.navigate("AutenticacaoCadastral")},
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.LightGray,
                         contentColor = Color.Black
