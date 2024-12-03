@@ -98,7 +98,9 @@ fun Home(navController: NavController) {
                     )
                 }
                 Button(
-                    onClick = { /* Ação do Botão 1 */ },
+                    onClick = {
+                        navController.navigate("DocumentosCopia")
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.LightGray,
                         contentColor = Color.Black
