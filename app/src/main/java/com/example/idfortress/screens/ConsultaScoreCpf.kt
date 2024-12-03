@@ -1,5 +1,6 @@
 package com.example.idfortress.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
@@ -9,12 +10,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.idfortress.R
 import kotlin.random.Random
 
 @Composable
@@ -41,16 +46,24 @@ fun ConsultaScoreCPF(navController: NavController) {
         }
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .background(colorResource(id = R.color.Background))
+    ){
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Header("Validação Score CPF", navController)
+        Spacer(Modifier.height(100.dp))
         Text(
-            text = "Sistema Antifraude",
+            text = "Digite Seu CPF",
             style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold),
-            modifier = Modifier.padding(bottom = 20.dp)
+            modifier = Modifier.padding(bottom = 20.dp),
+            color = Color.White
         )
 
         BasicTextField(
@@ -81,4 +94,12 @@ fun ConsultaScoreCPF(navController: NavController) {
 
         Text(message, color = Color.Red)
     }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+private fun ConsultaScoreCPFPreview() {
+    val navController = rememberNavController()
+    ConsultaScoreCPF(navController)
 }

@@ -1,13 +1,16 @@
 package com.example.idfortress.screens
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun AutenticacaoCadastral(navController: NavController) {
@@ -71,60 +74,75 @@ fun AutenticacaoCadastral(navController: NavController) {
     // Layout do formulário
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // CPF
-        TextField(
-            value = cpf.value,
-            onValueChange = { cpf.value = it },
-            label = { Text("CPF") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+        Header("Autenticação Cadastral", navController)
+        Spacer(Modifier.height(100.dp))
 
-        // Data de Nascimento
-        TextField(
-            value = dataNascimento.value,
-            onValueChange = { dataNascimento.value = it },
-            label = { Text("CPF") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+        Column(modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+            ) {
+            // CPF
+            TextField(
+                value = cpf.value,
+                onValueChange = { cpf.value = it },
+                label = { Text("CPF") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
 
-        // Endereço
-        TextField(
-            value = endereco.value,
-            onValueChange = { endereco.value = it },
-            label = { Text("Endereço") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+            // Data de Nascimento
+            TextField(
+                value = dataNascimento.value,
+                onValueChange = { dataNascimento.value = it },
+                label = { Text("Data Nascimento") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
 
-        // Celular
-        TextField(
-            value = celular.value,
-            onValueChange = { celular.value = it },
-            label = { Text("CPF") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+            // Endereço
+            TextField(
+                value = endereco.value,
+                onValueChange = { endereco.value = it },
+                label = { Text("Endereço") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
 
-        // Botão Validar
-        Button(
-            onClick = {
-                validarFormulario()
-            },
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("VALIDAR", color = Color.White)
+            // Celular
+            TextField(
+                value = celular.value,
+                onValueChange = { celular.value = it },
+                label = { Text("Celular") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Botão Validar
+            Button(
+                onClick = {
+                    validarFormulario()
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("VALIDAR", color = Color.White)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Feedback da validação
+            Text(text = feedbackMessage.value, color = if (feedbackMessage.value == "Dados autenticados com sucesso.") Color.Green else Color.Red)
+        }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+}
 
-        // Feedback da validação
-        Text(text = feedbackMessage.value, color = if (feedbackMessage.value == "Dados autenticados com sucesso.") Color.Green else Color.Red)
-    }
+@Preview
+@Composable
+private fun AutenticacaoCadastralPreview() {
+    var navController = rememberNavController()
+    AutenticacaoCadastral(navController)
 }
