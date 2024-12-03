@@ -1,14 +1,17 @@
 package com.example.idfortress.screens
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.TextUtils
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.idfortress.R
 
 
 class MainActivity : AppCompatActivity() {
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -26,7 +29,6 @@ class MainActivity : AppCompatActivity() {
             val telefone = edtTelefone.text.toString().trim()
 
             if (validarFormulario(nome, cpf, endereco, telefone)) {
-                // Lógica para enviar os dados
                 Toast.makeText(this, "Dados enviados com sucesso!", Toast.LENGTH_SHORT).show()
             }
         }
@@ -57,7 +59,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun validarCpf(cpf: String): Boolean {
-        // Remover caracteres não numéricos (caso o CPF tenha pontos e traço)
         val cpfLimpo = cpf.replace("[^0-9]".toRegex(), "")
 
         if (cpfLimpo.length != 11 || cpfLimpo.all { it == cpfLimpo[0] }) return false
@@ -81,7 +82,6 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun validarTelefone(telefone: String): Boolean {
-        // Regex para verificar se o telefone tem o formato (XX) XXXXX-XXXX
         val regex = "^\\(\\d{2}\\) \\d{5}-\\d{4}$".toRegex()
         return telefone.matches(regex)
     }
