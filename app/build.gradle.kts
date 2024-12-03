@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.vision.common)
     implementation(libs.play.services.mlkit.face.detection)
+    implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -74,5 +75,9 @@ dependencies {
     implementation(libs.androidx.camera.mlkit.vision)
     // If you want to additionally use the CameraX Extensions library
     implementation(libs.androidx.camera.extensions)
+    // Java language implementation
     implementation(libs.androidx.biometric)
+
+    // Kotlin
+    implementation(libs.androidx.biometric.v140alpha02)
 }
